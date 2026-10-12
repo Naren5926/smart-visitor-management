@@ -2,6 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 
 jest.mock('../src/models/User', () => require('./helpers/fakeUserModel'));
+jest.mock('../src/models/Visit', () => require('./helpers/fakeVisitModel'));
 
 const app = require('../src/app');
 const User = require('../src/models/User');

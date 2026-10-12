@@ -5,6 +5,10 @@ const morgan = require('morgan');
 const requireDb = require('./middleware/requireDb');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const visitRoutes = require('./routes/visitRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
+const securityRoutes = require('./routes/securityRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // The app is created here but NOT started, so tests can use it without opening a port.
 const app = express();
@@ -26,6 +30,10 @@ app.get('/api/health', (req, res) => {
 // These routes need the database, so they answer 503 when it is not connected.
 app.use('/api/auth', requireDb, authRoutes);
 app.use('/api/users', requireDb, userRoutes);
+app.use('/api/visits', requireDb, visitRoutes);
+app.use('/api/teacher', requireDb, teacherRoutes);
+app.use('/api/security', requireDb, securityRoutes);
+app.use('/api/admin', requireDb, adminRoutes);
 
 // Unknown routes
 app.use((req, res) => {

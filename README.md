@@ -143,3 +143,27 @@ New API routes (admin only unless noted): `GET /api/users/stats`, `POST /api/use
 3. In `server/.env` set `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (the verified sender) and optionally `BREVO_SENDER_NAME`, then restart the server.
 
 Email is optional: the admin always sees the temporary password on screen (copy button) and can download bulk-upload credentials as a CSV.
+
+## Visits, QR passes and gate scanning
+
+Flow: a **student** asks for a visit (Library, Lab or Meet a staff member). Library/Lab are approved instantly; staff visits wait for the **teacher** to approve. Approval issues a QR that is valid for **5 minutes** and works once. **Security** scans it to log ENTRY. For staff visits the student then scans the teacher's **rotating QR** (changes every 30 s) to prove they reached the teacher. On the way out the student shows an **exit QR** and security scans it. Security's dashboard shows who is inside campus and why.
+
+Teachers can **block a student from visiting them**; the reason is logged under **Admin -> Block logs**, where the admin can lift it. Admin's dashboard also shows how many people are inside now.
+
+| Role | Screens |
+| --- | --- |
+| Student | Home (status, QR), New visit, Pass, Scan teacher QR |
+| Teacher | Requests (approve/reject), My QR (rotating), Block a student |
+| Security | Dashboard (inside now, by purpose), Scan, manual check-out |
+
+### Testing on a phone (camera needs HTTPS)
+
+Browsers only allow camera access on `https://` or `localhost`. To use phones on the same wifi:
+
+```bash
+cd client && npm run dev:phone     # HTTPS dev server, reachable on your network
+```
+
+Open the `https://<your-laptop-ip>:5173` address that Vite prints, accept the one-time certificate warning, then sign in with the demo accounts. Keep `npm run dev` running in `server/` as usual (Vite forwards `/api`). The QR scanner library may download its decoder from a CDN on browsers without a built-in barcode reader, so the phone needs internet access.
+
+New API routes: `/api/visits/*` (students; teachers decide), `/api/teacher/*`, `/api/security/*`, `/api/admin/block-logs`.

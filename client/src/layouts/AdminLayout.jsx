@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, LogOut, UserPlus, UserX } from 'lucide-react'
+import { Ban, LayoutDashboard, LogOut, UserPlus, UserX } from 'lucide-react'
 import { useAuth } from '@/auth/authContext'
 import ThemeToggle from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ const NAV = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/admin/add-people', label: 'Add People', icon: UserPlus },
   { to: '/admin/users', label: 'Block / Unblock', icon: UserX },
+  { to: '/admin/block-logs', label: 'Block logs', icon: Ban },
 ]
 
 export default function AdminLayout() {

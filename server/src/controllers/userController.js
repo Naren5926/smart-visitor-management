@@ -1,11 +1,13 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const Visit = require('../models/Visit');
 const HttpError = require('../utils/httpError');
 const { hashPassword } = require('../utils/password');
 const { toPublicUser } = require('../utils/publicUser');
 const { sendCredentialsEmail } = require('../services/emailService');
 const { ROLES, STATUSES } = require('../constants/roles');
+const { VISIT_STATUSES } = require('../constants/visits');
 
 const listUsers = async (req, res) => {
   const users = await User.find().sort({ createdAt: -1 }).limit(200);
@@ -26,7 +28,8 @@ const getStats = async (req, res) => {
     stats[role] = { total: active + blocked, active, blocked };
   });
   const recent = await User.find().sort({ createdAt: -1 }).limit(5);
-  res.json({ stats, recent: recent.map(toPublicUser) });
+  const insideNow = await Visit.countDocuments({ status: VISIT_STATUSES.INSIDE });
+  res.json({ stats, insideNow, recent: recent.map(toPublicUser) });
 };
 
 // 12 random characters (about 69 bits) from an alphabet without look-alikes (no 0/O, 1/l/I),

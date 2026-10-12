@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { DoorOpen } from 'lucide-react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useAuth } from '@/auth/authContext'
 import { apiFetch } from '@/api'
@@ -38,7 +39,7 @@ export default function DashboardPage() {
         <p className="text-sm text-muted-foreground">People registered on the platform.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {PEOPLE_ROLES.map(({ id, plural, icon: Icon, backendRole }) => {
           const s = data.stats[backendRole]
           return (
@@ -56,6 +57,16 @@ export default function DashboardPage() {
             </Card>
           )
         })}
+        <Card className="gap-3">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardDescription>Inside campus now</CardDescription>
+            <DoorOpen className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{data.insideNow ?? 0}</div>
+            <p className="mt-1 text-xs text-muted-foreground">checked in at the gate</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-5">

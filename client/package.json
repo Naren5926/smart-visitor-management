@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:phone": "vite --host --mode phone",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
@@ -14,10 +15,13 @@
     "@radix-ui/react-label": "^2.1.17",
     "@radix-ui/react-slot": "^1.5.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "@yudiel/react-qr-scanner": "^2.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.55.0",
     "motion": "^14.1.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",

@@ -5,6 +5,10 @@ const toPublicUser = (user) => ({
   email: user.email,
   role: user.role,
   status: user.status,
+  mustChangePassword: Boolean(user.mustChangePassword),
+  className: user.className,
+  year: user.year,
+  rollNo: user.rollNo,
   createdAt: user.createdAt,
 });
 

@@ -67,7 +67,7 @@ Then edit `server/.env` (it is ignored by git; never commit it):
 
 Public sign-up only ever creates **Visitors**. The first Admin is created once from the command line:
 
-1. In `server/.env` add `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (10+ characters) - see `.env.example`.
+1. In `server/.env` add `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (6+ characters) - see `.env.example`.
 2. Run:
    ```bash
    cd server
@@ -116,3 +116,30 @@ cd client && npm run build   # production build
 ```
 
 The backend tests use an in-memory fake of the User model, so they need no database. They verify our logic (validation, roles, tokens, hashing) but do **not** exercise real Mongoose/Atlas behaviour; that needs a real connection.
+
+## Demo accounts (development only)
+
+`cd server && npm run seed-demo` creates these users (password for all: `Demo@12345`):
+
+| UI role | Email | Backend role |
+| --- | --- | --- |
+| Admin | admin@demo.test | admin |
+| Student | student@demo.test | visitor |
+| Teacher | teacher@demo.test | host |
+| Security | security@demo.test | security |
+
+The login page makes you pick a role first; the server-returned role must match the card you picked.
+
+## Admin area
+
+Sign in as an Admin to get the sidebar: **Dashboard** (counts, role chart, newest accounts), **Add People** and **Block / Unblock**. The sun/moon button (top right) switches light/dark theme.
+
+New API routes (admin only unless noted): `GET /api/users/stats`, `POST /api/users` (`name`, `email`, `role`; a temporary password is generated and emailed), `POST /api/users/:id/resend-credentials`, and `POST /api/auth/change-password` (any logged-in user).
+
+### Brevo email setup
+
+1. Create a free account at https://www.brevo.com and verify a sender email under Senders & IP.
+2. Create an API key (SMTP & API -> API Keys).
+3. In `server/.env` set `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (the verified sender) and optionally `BREVO_SENDER_NAME`, then restart the server.
+
+Email is optional: the admin always sees the temporary password on screen (copy button) and can download bulk-upload credentials as a CSV.

@@ -49,14 +49,21 @@ export default function AuthProvider({ children }) {
     }
   }, [token, user, logout])
 
-  const login = useCallback(async (email, password) => {
+  // expectedRole: the role card picked on the login page; reject before storing anything on a mismatch.
+  const login = useCallback(async (email, password, expectedRole) => {
     const data = await apiFetch('/api/auth/login', { method: 'POST', body: { email, password } })
+    if (expectedRole && data.user.role !== expectedRole) {
+      throw new Error('This account does not belong to the selected role')
+    }
     writeToken(data.token)
     setToken(data.token)
     setUser(data.user)
     return data.user
   }, [])
 
-  const value = useMemo(() => ({ user, token, loading, login, logout }), [user, token, loading, login, logout])
+  const value = useMemo(
+    () => ({ user, token, loading, login, logout, updateUser: setUser }),
+    [user, token, loading, login, logout]
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

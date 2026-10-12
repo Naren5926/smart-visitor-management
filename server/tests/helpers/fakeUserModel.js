@@ -51,6 +51,7 @@ const User = {
       const found = store.find((u) => matches(u, filter));
       return found ? { _id: found._id } : null;
     }),
+  countDocuments: (filter) => new FakeQuery(() => store.filter((u) => matches(u, filter)).length),
   find: (filter) => new FakeQuery(() => store.filter((u) => matches(u, filter)).map(clone)),
   findByIdAndUpdate: (id, update) =>
     new FakeQuery(() => {

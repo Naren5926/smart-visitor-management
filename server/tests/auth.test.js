@@ -21,7 +21,7 @@ describe('POST /api/auth/register', () => {
     const res = await request(app).post('/api/auth/register').send(validSignup);
     expect(res.status).toBe(201);
     expect(res.body.user).toMatchObject({ email: 'alice@example.com', role: 'visitor', status: 'active' });
-    expect(JSON.stringify(res.body)).not.toMatch(/passwordHash|password"|\$2[aby]\$/i);
+    expect(JSON.stringify(res.body)).not.toMatch(/passwordHash|"password"|\$2[aby]\$/i);
   });
 
   it('stores a bcrypt hash, not the plaintext password', async () => {

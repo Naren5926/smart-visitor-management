@@ -6,24 +6,24 @@ export default function ProfilePage() {
 
   return (
     <div className="text-left">
-      <h2 className="text-lg font-semibold text-slate-900">Welcome, {user.name}</h2>
+      <h2 className="text-lg font-semibold text-foreground">Welcome, {user.name}</h2>
       <dl className="mt-4 space-y-2 text-sm">
         <div className="flex justify-between">
-          <dt className="text-slate-500">Email</dt>
-          <dd className="text-slate-900">{user.email}</dd>
+          <dt className="text-muted-foreground">Email</dt>
+          <dd className="text-foreground">{user.email}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="text-slate-500">Role</dt>
-          <dd className="capitalize text-slate-900">{user.role}</dd>
+          <dt className="text-muted-foreground">Role</dt>
+          <dd className="capitalize text-foreground">{user.role}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="text-slate-500">Status</dt>
-          <dd className="capitalize text-slate-900">{user.status}</dd>
+          <dt className="text-muted-foreground">Status</dt>
+          <dd className="capitalize text-foreground">{user.status}</dd>
         </div>
       </dl>
       <button
         onClick={logout}
-        className="mt-6 w-full rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
+        className="mt-6 w-full rounded-lg border px-4 py-2 font-medium hover:bg-accent"
       >
         Log out
       </button>

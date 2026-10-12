@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLE_VALUES, default: ROLES.VISITOR, required: true },
     status: { type: String, enum: STATUS_VALUES, default: STATUSES.ACTIVE, required: true },
+    // True while the user still has the admin-issued temporary password.
+    mustChangePassword: { type: Boolean, default: false },
+    // Student details (only set for students added by an admin).
+    className: { type: String, trim: true, maxlength: 50 },
+    year: { type: String, trim: true, maxlength: 20 },
+    rollNo: { type: String, trim: true, maxlength: 50 },
   },
   {
     timestamps: true,

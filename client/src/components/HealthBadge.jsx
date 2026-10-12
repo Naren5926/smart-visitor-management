@@ -14,9 +14,9 @@ export default function HealthBadge() {
   }, [])
 
   const badge = {
-    loading: 'bg-slate-200 text-slate-700',
-    ok: 'bg-green-100 text-green-800',
-    error: 'bg-red-100 text-red-800',
+    loading: 'bg-muted text-muted-foreground',
+    ok: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
+    error: 'bg-destructive/15 text-destructive',
   }[status.state]
 
   return (

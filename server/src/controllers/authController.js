@@ -49,4 +49,27 @@ const me = (req, res) => {
   res.json({ user: toPublicUser(req.user) });
 };
 
-module.exports = { register, login, me };
+// Lets any logged-in user pick a new password; this also clears the "temporary password" flag.
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user._id).select('+passwordHash');
+  if (!user) throw new HttpError(401, 'Authentication required');
+
+  // Someone who has just signed in with an admin-issued temporary password does not have to type it
+  // again; everyone else must prove they know the current password.
+  if (!user.mustChangePassword) {
+    if (!currentPassword || !(await verifyPassword(currentPassword, user.passwordHash))) {
+      throw new HttpError(401, 'Current password is incorrect');
+    }
+  }
+
+  const updated = await User.findByIdAndUpdate(
+    user._id,
+    { passwordHash: await hashPassword(newPassword), mustChangePassword: false },
+    { new: true }
+  );
+  res.json({ user: toPublicUser(updated) });
+};
+
+module.exports = { register, login, me, changePassword };

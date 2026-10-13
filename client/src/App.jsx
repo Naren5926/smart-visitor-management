@@ -12,8 +12,9 @@ import AddPeoplePage from './pages/admin/AddPeoplePage'
 import ManageUsersPage from './pages/admin/ManageUsersPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import LoginPage from './pages/LoginPage'
-import MobileLayout from './layouts/MobileLayout'
+import ResponsiveLayout from './layouts/ResponsiveLayout'
 import BlockLogsPage from './pages/admin/BlockLogsPage'
+import BlackMarksPage from './pages/admin/BlackMarksPage'
 import NewRequestPage from './pages/student/NewRequestPage'
 import PassPage from './pages/student/PassPage'
 import StudentHome from './pages/student/StudentHome'
@@ -42,15 +43,21 @@ const SECURITY_NAV = [
 ]
 
 // Small centered card used for login, forced password change and the placeholder profile.
-function CardShell({ children, showToggle = false }) {
+function CardShell({ children, showToggle = false, showLogo = false }) {
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-6">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-8 p-6 md:flex-row md:gap-16 lg:px-20">
+      {showLogo && (
+        <div className="flex w-full max-w-md justify-center md:max-w-xl md:flex-1">
+          <img src="/svms-logo.svg" alt="Smart Visitor Management System" className="w-full dark:hidden" />
+          <img src="/svms-logo-dark.svg" alt="Smart Visitor Management System" className="hidden w-full dark:block" />
+        </div>
+      )}
       {showToggle && (
         <div className="fixed top-4 right-4">
           <ThemeToggle />
         </div>
       )}
-      <Card className="w-full max-w-md p-8 text-center">
+      <Card className="w-full max-w-md p-8 text-center md:shrink-0">
         <h1 className="text-2xl font-bold">Smart Visitor Management</h1>
         <div className="mt-6">{children}</div>
         <div className="mt-2">
@@ -73,7 +80,7 @@ function Screen() {
   }
   if (!user) {
     return (
-      <CardShell>
+      <CardShell showLogo>
         <LoginPage />
       </CardShell>
     )
@@ -94,6 +101,7 @@ function Screen() {
           <Route path="add-people" element={<AddPeoplePage />} />
           <Route path="users" element={<ManageUsersPage />} />
           <Route path="block-logs" element={<BlockLogsPage />} />
+          <Route path="black-marks" element={<BlackMarksPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
@@ -103,7 +111,7 @@ function Screen() {
   if (user.role === 'visitor') {
     return (
       <Routes>
-        <Route path="/student" element={<MobileLayout title="Student" nav={STUDENT_NAV} />}>
+        <Route path="/student" element={<ResponsiveLayout title="Student" roleName="Student" nav={STUDENT_NAV} />}>
           <Route index element={<StudentHome />} />
           <Route path="new" element={<NewRequestPage />} />
           <Route path="pass/:id" element={<PassPage />} />
@@ -117,7 +125,7 @@ function Screen() {
   if (user.role === 'host') {
     return (
       <Routes>
-        <Route path="/teacher" element={<MobileLayout title="Teacher" nav={TEACHER_NAV} />}>
+        <Route path="/teacher" element={<ResponsiveLayout title="Teacher" roleName="Teacher" nav={TEACHER_NAV} />}>
           <Route index element={<TeacherRequests />} />
           <Route path="qr" element={<TeacherQr />} />
           <Route path="blocks" element={<TeacherBlocks />} />
@@ -130,7 +138,7 @@ function Screen() {
   if (user.role === 'security') {
     return (
       <Routes>
-        <Route path="/security" element={<MobileLayout title="Security gate" nav={SECURITY_NAV} />}>
+        <Route path="/security" element={<ResponsiveLayout title="Security gate" roleName="Security" nav={SECURITY_NAV} />}>
           <Route index element={<SecurityDashboard />} />
           <Route path="scan" element={<SecurityScan />} />
         </Route>

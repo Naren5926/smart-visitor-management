@@ -111,6 +111,8 @@ const makeFakeModel = (defaults = {}) => {
         const found = store.find((d) => matches(d, filter));
         return found ? { _id: found._id } : null;
       }),
+    distinct: (field, filter) =>
+      new FakeQuery(() => [...new Set(store.filter((d) => matches(d, filter)).map((d) => String(d[field])))]),
     find: (filter) => new FakeQuery(() => store.filter((d) => matches(d, filter)).map(clone)),
     countDocuments: (filter) => new FakeQuery(() => store.filter((d) => matches(d, filter)).length),
     findByIdAndUpdate: (id, update) =>
@@ -127,6 +129,12 @@ const makeFakeModel = (defaults = {}) => {
         if (!doc) return null;
         applyUpdate(doc, update);
         return clone(doc);
+      }),
+    updateOne: (filter, update) =>
+      new FakeQuery(() => {
+        const doc = store.find((d) => matches(d, filter));
+        if (doc) applyUpdate(doc, update);
+        return { modifiedCount: doc ? 1 : 0 };
       }),
     updateMany: (filter, update) =>
       new FakeQuery(() => {

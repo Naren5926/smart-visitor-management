@@ -52,9 +52,9 @@ export default function TeacherRequests() {
   const recent = (visits ?? []).filter((v) => v.status !== 'pending').slice(0, 15)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 md:space-y-6">
       <div>
-        <h1 className="text-xl font-bold">Visit requests</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Visit requests</h1>
         <p className="text-sm text-muted-foreground">Students who want to meet you. Approving gives them a 5-minute QR.</p>
       </div>
 
@@ -65,6 +65,7 @@ export default function TeacherRequests() {
         <Card className="items-center py-8 text-center text-sm text-muted-foreground">No requests waiting.</Card>
       )}
 
+      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
       {pending.map((v) => (
         <Card key={v.id} className="gap-3 px-4 py-4">
           <div className="flex items-start justify-between gap-2">
@@ -82,10 +83,12 @@ export default function TeacherRequests() {
           </div>
         </Card>
       ))}
+      </div>
 
       {recent.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-sm font-semibold text-muted-foreground">Earlier</h2>
+          <div className="grid gap-3 md:grid-cols-2">
           {recent.map((v) => (
             <Card key={v.id} className="gap-1 px-4 py-3">
               <div className="flex items-center justify-between gap-2">
@@ -98,6 +101,7 @@ export default function TeacherRequests() {
               </p>
             </Card>
           ))}
+          </div>
         </section>
       )}
     </div>

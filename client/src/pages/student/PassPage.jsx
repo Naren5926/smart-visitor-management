@@ -80,7 +80,7 @@ export default function PassPage() {
       {error && <Alert variant="warning">{error}</Alert>}
 
       {pass && (
-        <Card className="items-center gap-4 px-4 py-6 text-center">
+        <Card className="mx-auto w-full items-center gap-4 px-4 py-6 text-center md:max-w-lg md:py-10">
           <div>
             <h1 className="text-lg font-bold">{isEntry ? 'Entry pass' : 'Exit pass'}</h1>
             {visit && (
@@ -92,7 +92,7 @@ export default function PassPage() {
 
           {/* QR codes always stay dark-on-white so every scanner can read them, in dark theme too. */}
           <div className={`rounded-2xl bg-white p-4 shadow-sm ${expired ? 'opacity-20' : ''}`}>
-            <QRCodeSVG value={pass.token} size={256} level="M" className="h-auto w-full max-w-[min(70vw,300px)]" />
+            <QRCodeSVG value={pass.token} size={256} level="M" className="h-auto w-full max-w-[min(70vw,300px)] md:max-w-[360px]" />
           </div>
 
           {isEntry ? (

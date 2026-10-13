@@ -12,6 +12,8 @@ export default function MobileLayout({ title, nav }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col">
       <header className="sticky top-0 z-20 flex items-center gap-2 border-b bg-background/95 px-4 py-2.5 backdrop-blur">
+        <img src="/svms-logo.svg" alt="SVMS logo" className="size-8 shrink-0 dark:hidden" />
+          <img src="/svms-logo-dark.svg" alt="" className="size-8 shrink-0 hidden dark:block" />
         <div className="min-w-0 flex-1 text-left">
           <p className="truncate text-sm font-semibold">{title}</p>
           <p className="truncate text-xs text-muted-foreground">{user.name}</p>

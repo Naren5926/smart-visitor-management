@@ -16,4 +16,8 @@ const QR_TTL_MS = 5 * 60 * 1000;
 // The teacher's rotating code changes every 30 seconds.
 const LIVE_CODE_STEP_MS = 30 * 1000;
 
-module.exports = { PURPOSES, PURPOSE_VALUES, VISIT_STATUSES, QR_TTL_MS, LIVE_CODE_STEP_MS };
+// A student who leaves after a staff visit without ever scanning the teacher's QR earns a black mark.
+// Reaching this many uncleared marks blocks the account until an admin unblocks it.
+const BLACK_MARK_LIMIT = 3;
+
+module.exports = { BLACK_MARK_LIMIT, PURPOSES, PURPOSE_VALUES, VISIT_STATUSES, QR_TTL_MS, LIVE_CODE_STEP_MS };

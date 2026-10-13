@@ -20,11 +20,18 @@ const liveCode = (req, res) => {
   res.json({ ...makeLiveCode(String(req.user._id)), serverTime: Date.now() });
 };
 
-// Find a student by name, roll number or class (small campus, so a simple in-memory filter is fine).
+// Students who actually reached this teacher (arrival confirmed by scanning the live QR).
+const visitedStudentIds = (teacherId) => Visit.distinct('student', { teacher: teacherId, arrivedAt: { $ne: null } });
+
+// Find a visited student by name, roll number or class (small campus, so a simple in-memory filter is fine).
 const searchStudents = async (req, res) => {
   const q = String(req.query.q || '').trim().toLowerCase();
   if (q.length < 2) return res.json({ students: [] });
-  const students = await User.find({ role: ROLES.VISITOR, status: STATUSES.ACTIVE }).sort({ name: 1 }).limit(2000);
+  const students = await User.find({
+    _id: { $in: await visitedStudentIds(req.user._id) },
+    role: ROLES.VISITOR,
+    status: STATUSES.ACTIVE,
+  }).sort({ name: 1 }).limit(2000);
   const hits = students
     .filter((s) => [s.name, s.rollNo, s.className].some((f) => f && String(f).toLowerCase().includes(q)))
     .slice(0, 20);
@@ -37,6 +44,11 @@ const createBlock = async (req, res) => {
   const { studentId, reason } = req.body;
   const student = mongoose.isValidObjectId(studentId) ? await User.findById(studentId) : null;
   if (!student || student.role !== ROLES.VISITOR) throw new HttpError(404, 'Student not found');
+
+  // A teacher may only block students who have actually visited them.
+  if (!(await Visit.exists({ teacher: req.user._id, student: student._id, arrivedAt: { $ne: null } }))) {
+    throw new HttpError(403, 'You can only block students who have visited you');
+  }
 
   if (await TeacherBlock.exists({ teacher: req.user._id, student: student._id, active: true })) {
     throw new HttpError(409, 'You have already blocked this student');

@@ -3,7 +3,7 @@ const Visit = require('../models/Visit');
 const HttpError = require('../utils/httpError');
 const { toPublicVisit } = require('../utils/publicVisit');
 const { verifyPassToken } = require('../utils/qrTokens');
-const { expireStaleVisits } = require('../services/visitService');
+const { expireStaleVisits, flagUnverifiedExit } = require('../services/visitService');
 const { PURPOSE_VALUES, VISIT_STATUSES } = require('../constants/visits');
 
 const startOfToday = () => {
@@ -34,6 +34,8 @@ const overview = async (req, res) => {
     serverTime: Date.now(),
   });
 };
+
+const withFlag = (visit, mark) => ({ ...(visit.toObject ? visit.toObject() : visit), flagged: Boolean(mark) || visit.flagged });
 
 const whyNot = (visit) => {
   if (!visit) return 'Pass not recognised';
@@ -79,7 +81,8 @@ const scan = async (req, res) => {
     { new: true }
   );
   if (!visit) throw new HttpError(409, whyNot(await Visit.findById(visitId)));
-  res.json({ action: 'exit', visit: toPublicVisit(visit) });
+  const mark = await flagUnverifiedExit(visit);
+  res.json({ action: 'exit', visit: toPublicVisit(withFlag(visit, mark)), blackMark: mark });
 };
 
 // Fallback when a student's phone is dead or the QR cannot be shown.
@@ -92,7 +95,8 @@ const checkout = async (req, res) => {
     { new: true }
   );
   if (!visit) throw new HttpError(409, 'This student is not marked as inside');
-  res.json({ action: 'exit', visit: toPublicVisit(visit) });
+  const mark = await flagUnverifiedExit(visit);
+  res.json({ action: 'exit', visit: toPublicVisit(withFlag(visit, mark)), blackMark: mark });
 };
 
 module.exports = { overview, scan, checkout };

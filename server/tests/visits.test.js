@@ -3,11 +3,13 @@ const request = require('supertest');
 jest.mock('../src/models/User', () => require('./helpers/fakeUserModel'));
 jest.mock('../src/models/Visit', () => require('./helpers/fakeVisitModel'));
 jest.mock('../src/models/TeacherBlock', () => require('./helpers/fakeBlockModel'));
+jest.mock('../src/models/SecurityEvent', () => require('./helpers/fakeEventModel'));
 
 const app = require('../src/app');
 const User = require('../src/models/User');
 const Visit = require('../src/models/Visit');
 const TeacherBlock = require('../src/models/TeacherBlock');
+const SecurityEvent = require('../src/models/SecurityEvent');
 const { fakeDbConnected, makeUser, tokenFor } = require('./helpers/testUtils');
 const { makeLiveCode } = require('../src/utils/qrTokens');
 
@@ -15,6 +17,7 @@ beforeEach(() => {
   User.__reset();
   Visit.__reset();
   TeacherBlock.__reset();
+  SecurityEvent.__reset();
   fakeDbConnected(true);
 });
 afterEach(() => jest.restoreAllMocks());
@@ -227,9 +230,22 @@ describe('teacher live QR (arrival proof)', () => {
   });
 });
 
+// A completed staff visit whose arrival was verified: the student really did meet the teacher.
+const markVisited = (s) =>
+  Visit.create({
+    student: s.student.user._id,
+    studentName: 'Asha K',
+    purpose: 'staff',
+    teacher: s.teacher.user._id,
+    teacherName: 'Mr Rao',
+    status: 'completed',
+    arrivedAt: new Date(),
+  });
+
 describe('teacher blocks and the admin log', () => {
   it('blocks a student, cancels their pending request, and shows the reason to the admin', async () => {
     const s = await setup();
+    await markVisited(s);
     const created = await requestStaffVisit(s.student, s.teacher);
 
     const block = await api('post', '/api/teacher/blocks', s.teacher.auth).send({ studentId: String(s.student.user._id), reason: 'Disturbs class repeatedly' });
@@ -255,6 +271,7 @@ describe('teacher blocks and the admin log', () => {
 
   it('needs a real reason, and teachers cannot lift blocks; the admin can', async () => {
     const s = await setup();
+    await markVisited(s);
     const noReason = await api('post', '/api/teacher/blocks', s.teacher.auth).send({ studentId: String(s.student.user._id), reason: 'no' });
     expect(noReason.status).toBe(400);
 
@@ -267,6 +284,9 @@ describe('teacher blocks and the admin log', () => {
 
   it('searches students by name or roll number for the block form', async () => {
     const s = await setup();
+    expect((await api('get', '/api/teacher/students?q=21cs', s.teacher.auth)).body.students).toEqual([]); // never visited
+    expect((await api('post', '/api/teacher/blocks', s.teacher.auth).send({ studentId: String(s.student.user._id), reason: 'Not visited yet' })).status).toBe(403);
+    await markVisited(s);
     const res = await api('get', '/api/teacher/students?q=21cs', s.teacher.auth);
     expect(res.body.students).toEqual([{ id: String(s.student.user._id), name: 'Asha K', className: 'CSE-A', rollNo: '21CS001' }]);
     expect((await api('get', '/api/teacher/students?q=a', s.teacher.auth)).body.students).toEqual([]);
@@ -278,5 +298,73 @@ describe('teacher blocks and the admin log', () => {
     expect((await api('get', '/api/admin/block-logs', s.teacher.auth)).status).toBe(403);
     expect((await api('get', '/api/security/overview', s.teacher.auth)).status).toBe(403);
     expect((await request(app).get('/api/visits/mine')).status).toBe(401);
+  });
+});
+
+describe('black marks for leaving without meeting the teacher', () => {
+  // Approved, scanned in at the gate, then scanned out again; the teacher QR is only scanned if asked.
+  const staffVisit = async (s, { verify = false } = {}) => {
+    const created = await requestStaffVisit(s.student, s.teacher);
+    const id = created.body.visit.id;
+    await api('post', `/api/visits/${id}/decision`, s.teacher.auth).send({ decision: 'approve' });
+    const entry = await api('get', `/api/visits/${id}/pass`, s.student.auth);
+    await api('post', '/api/security/scan', s.security.auth).send({ token: entry.body.token });
+    if (verify) {
+      const live = await api('get', '/api/teacher/live-code', s.teacher.auth);
+      await api('post', `/api/visits/${id}/verify-arrival`, s.student.auth).send({ code: live.body.code });
+    }
+    const exit = await api('get', `/api/visits/${id}/pass`, s.student.auth);
+    return api('post', '/api/security/scan', s.security.auth).send({ token: exit.body.token });
+  };
+
+  it('gives no mark when the arrival was verified, or for library visits', async () => {
+    const s = await setup();
+    const res = await staffVisit(s, { verify: true });
+    expect(res.body.blackMark).toBeNull();
+    expect(res.body.visit.flagged).toBe(false);
+    expect(SecurityEvent.__all()).toHaveLength(0);
+  });
+
+  it('flags a staff visit that ends without verification and tells the admin', async () => {
+    const s = await setup();
+    const res = await staffVisit(s);
+    expect(res.body.visit.flagged).toBe(true);
+    expect(res.body.blackMark).toMatchObject({ markCount: 1, blocked: false });
+
+    const list = await api('get', '/api/admin/black-marks', s.admin.auth);
+    expect(list.status).toBe(200);
+    expect(list.body.events).toHaveLength(1);
+    expect(list.body.events[0]).toMatchObject({ type: 'black_mark', student: { name: 'Asha K' }, teacher: { name: 'Mr Rao' } });
+    expect((await api('get', '/api/admin/black-marks', s.student.auth)).status).toBe(403);
+  });
+
+  it('also flags a manual checkout', async () => {
+    const s = await setup();
+    const created = await requestStaffVisit(s.student, s.teacher);
+    const id = created.body.visit.id;
+    await api('post', `/api/visits/${id}/decision`, s.teacher.auth).send({ decision: 'approve' });
+    const entry = await api('get', `/api/visits/${id}/pass`, s.student.auth);
+    await api('post', '/api/security/scan', s.security.auth).send({ token: entry.body.token });
+    const res = await api('post', `/api/security/checkout/${id}`, s.security.auth);
+    expect(res.body.blackMark).toMatchObject({ markCount: 1 });
+  });
+
+  it('blocks the student automatically on the third mark, and unblocking gives a fresh start', async () => {
+    const s = await setup();
+    await staffVisit(s);
+    await staffVisit(s);
+    const third = await staffVisit(s);
+    expect(third.body.blackMark).toMatchObject({ markCount: 3, blocked: true });
+
+    const events = (await api('get', '/api/admin/black-marks', s.admin.auth)).body.events;
+    expect(events.filter((e) => e.type === 'auto_block')).toHaveLength(1);
+    expect(events[0].stillBlocked).toBe(true);
+    expect((await api('get', '/api/visits/mine', s.student.auth)).status).toBe(403);
+
+    await api('patch', `/api/users/${s.student.user._id}/status`, s.admin.auth).send({ status: 'active' });
+    const after = (await api('get', '/api/admin/black-marks', s.admin.auth)).body.events;
+    expect(after.every((e) => e.stillBlocked === false)).toBe(true);
+    const next = await staffVisit(s);
+    expect(next.body.blackMark).toMatchObject({ markCount: 1, blocked: false });
   });
 });

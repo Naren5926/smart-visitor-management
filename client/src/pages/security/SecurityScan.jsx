@@ -37,9 +37,9 @@ export default function SecurityScan() {
   const v = result?.visit
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full space-y-4 md:max-w-3xl md:space-y-6">
       <div>
-        <h1 className="text-xl font-bold">Scan a pass</h1>
+        <h1 className="text-xl font-bold md:text-3xl">Scan a pass</h1>
         <p className="text-sm text-muted-foreground">Point the camera at the student's QR. Entry and exit are detected automatically.</p>
       </div>
 
@@ -75,6 +75,11 @@ export default function SecurityScan() {
               {result.action === 'exit' && v.purpose === 'staff' && (
                 <Badge variant={v.arrivedAt ? 'success' : 'warning'}>
                   {v.arrivedAt ? 'Teacher QR was verified' : 'Teacher QR was NOT verified'}
+                </Badge>
+              )}
+              {result.blackMark && (
+                <Badge variant="destructive">
+                  Black mark added ({result.blackMark.markCount}){result.blackMark.blocked ? ' · student blocked' : ''}
                 </Badge>
               )}
             </>

@@ -63,11 +63,11 @@ export default function TeacherBlocks() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 md:space-y-6">
       <div>
-        <h1 className="text-xl font-bold">Block a student</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Block a student</h1>
         <p className="text-sm text-muted-foreground">
-          They won't be able to request visits with you. Your reason is logged for the admin, who can lift the block.
+          Only students who have visited you can be blocked. They won't be able to request visits with you. Your reason is logged for the admin, who can lift the block.
         </p>
       </div>
 
@@ -75,10 +75,10 @@ export default function TeacherBlocks() {
       {notice && <Alert variant="success">{notice}</Alert>}
 
       {!picked ? (
-        <div className="space-y-3">
+        <div className="space-y-3 md:max-w-2xl">
           <div className="relative">
             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="h-11 pl-9" placeholder="Search name, roll no or class" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search students" />
+            <Input className="h-12 pl-9" placeholder="Search students who have visited you" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search students" />
           </div>
           {(q.trim().length >= 2 ? results : []).map((s) => (
             <button
@@ -90,10 +90,10 @@ export default function TeacherBlocks() {
               <p className="text-xs text-muted-foreground">{studentLine(s)}</p>
             </button>
           ))}
-          {q.trim().length >= 2 && results.length === 0 && <p className="text-sm text-muted-foreground">No students found.</p>}
+          {q.trim().length >= 2 && results.length === 0 && <p className="text-sm text-muted-foreground">No visited students found. You can only block students who have visited you.</p>}
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-3 rounded-xl border bg-card p-4">
+        <form onSubmit={submit} className="space-y-3 rounded-xl border bg-card p-4 md:max-w-2xl">
           <div>
             <p className="font-semibold">{picked.name}</p>
             <p className="text-xs text-muted-foreground">{studentLine(picked)}</p>
@@ -116,6 +116,7 @@ export default function TeacherBlocks() {
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground">Your blocks</h2>
         {blocks && blocks.length === 0 && <p className="text-sm text-muted-foreground">You haven't blocked anyone.</p>}
+        <div className="grid gap-3 md:grid-cols-2">
         {blocks?.map((b) => (
           <Card key={b.id} className="gap-1 px-4 py-3">
             <div className="flex items-center justify-between gap-2">
@@ -125,6 +126,7 @@ export default function TeacherBlocks() {
             <p className="text-xs text-muted-foreground">{b.reason}</p>
           </Card>
         ))}
+        </div>
       </section>
     </div>
   )

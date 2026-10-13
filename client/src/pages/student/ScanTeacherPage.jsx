@@ -32,14 +32,14 @@ export default function ScanTeacherPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:max-w-2xl">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link to={`/student/pass/${id}`}>
           <ArrowLeft /> Back
         </Link>
       </Button>
       <div>
-        <h1 className="text-xl font-bold">Scan the teacher's QR</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Scan the teacher's QR</h1>
         <p className="text-sm text-muted-foreground">Ask the teacher to open "My QR" and point your camera at it. It changes every 30 seconds.</p>
       </div>
       <QrScanner onResult={onResult} paused={busy} />

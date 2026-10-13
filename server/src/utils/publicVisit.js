@@ -21,6 +21,7 @@ const toPublicVisit = (v) => ({
   enteredAt: v.enteredAt,
   arrivedAt: v.arrivedAt,
   exitedAt: v.exitedAt,
+  flagged: Boolean(v.flagged),
   createdAt: v.createdAt,
 });
 

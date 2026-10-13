@@ -48,37 +48,38 @@ export default function SecurityDashboard() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 md:space-y-8">
       {error && <Alert>{error}</Alert>}
       {!data && !error && <p className="text-muted-foreground">Loading...</p>}
 
       {data && (
         <>
-          <Card className="items-center gap-1 py-6 text-center">
-            <Users className="size-6 text-muted-foreground" />
-            <p className="text-6xl font-bold tabular-nums">{data.insideCount}</p>
-            <p className="text-sm text-muted-foreground">inside campus now</p>
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-4 md:gap-6">
+          <Card className="col-span-3 items-center justify-center gap-1 py-6 text-center md:col-span-1 md:min-h-52 md:py-8">
+            <Users className="size-6 text-muted-foreground md:size-7" />
+            <p className="text-6xl font-bold tabular-nums md:text-6xl">{data.insideCount}</p>
+            <p className="text-sm text-muted-foreground md:text-base">inside campus now</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Today: {data.entriesToday} in · {data.exitsToday} out
             </p>
           </Card>
 
-          <div className="grid grid-cols-3 gap-2">
-            {Object.entries(data.byPurpose).map(([purpose, count]) => {
+          {Object.entries(data.byPurpose).map(([purpose, count]) => {
               const Icon = PURPOSE_ICONS[purpose]
               return (
-                <Card key={purpose} className="items-center gap-1 px-2 py-3 text-center">
-                  <Icon className="size-4 text-muted-foreground" />
-                  <p className="text-2xl font-bold tabular-nums">{count}</p>
-                  <p className="text-[11px] leading-tight text-muted-foreground">{purposeLabel(purpose)}</p>
+                <Card key={purpose} className="items-center justify-center gap-1 px-2 py-3 text-center md:min-h-52 md:py-8">
+                  <Icon className="size-4 text-muted-foreground md:size-7" />
+                  <p className="text-2xl font-bold tabular-nums md:text-6xl">{count}</p>
+                  <p className="text-[11px] leading-tight md:text-base text-muted-foreground">{purposeLabel(purpose)}</p>
                 </Card>
               )
             })}
           </div>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-semibold text-muted-foreground">Currently inside</h2>
+          <section className="space-y-3">
+            <h2 className="text-sm font-semibold text-muted-foreground md:text-lg">Currently inside</h2>
             {data.inside.length === 0 && <p className="text-sm text-muted-foreground">Nobody is inside.</p>}
+            <div className="grid gap-3 md:grid-cols-2 md:gap-4 2xl:grid-cols-3">
             {data.inside.map((v) => (
               <Card key={v.id} className="gap-2 px-4 py-3">
                 <div className="flex items-start justify-between gap-2">
@@ -95,12 +96,13 @@ export default function SecurityDashboard() {
                   {v.purpose === 'staff' && (
                     <Badge variant={v.arrivedAt ? 'success' : 'warning'}>{v.arrivedAt ? 'Arrival verified' : 'Not verified yet'}</Badge>
                   )}
-                  <Button variant="ghost" size="sm" className="ml-auto h-9" onClick={() => setTarget(v)}>
+                  <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setTarget(v)}>
                     <LogOut /> Check out
                   </Button>
                 </div>
               </Card>
             ))}
+            </div>
           </section>
         </>
       )}

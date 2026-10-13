@@ -45,13 +45,13 @@ export default function NewRequestPage() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
-      <div>
-        <h1 className="text-xl font-bold">Where are you going?</h1>
+    <form onSubmit={submit} className="mx-auto w-full space-y-5 md:max-w-5xl md:space-y-8">
+      <div className="md:text-center">
+        <h1 className="text-xl font-bold md:text-3xl">Where are you going?</h1>
         <p className="text-sm text-muted-foreground">Library and labs get a QR instantly. Staff visits need approval.</p>
       </div>
 
-      <div className="grid gap-3" role="radiogroup" aria-label="Purpose of visit">
+      <div className="grid gap-3 md:grid-cols-3 md:gap-6" role="radiogroup" aria-label="Purpose of visit">
         {PURPOSES.map(({ id, label, hint, icon: Icon }) => {
           const selected = purpose === id
           return (
@@ -62,14 +62,14 @@ export default function NewRequestPage() {
               aria-checked={selected}
               onClick={() => setPurpose(id)}
               className={cn(
-                'flex min-h-16 items-center gap-3 rounded-xl border p-4 text-left outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.98]',
+                'flex min-h-16 items-center gap-3 rounded-xl border p-4 text-left md:min-h-56 md:flex-col md:justify-center md:gap-4 md:rounded-2xl md:p-8 md:text-center outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.98]',
                 selected ? 'border-primary bg-primary text-primary-foreground shadow-md' : 'bg-card hover:bg-accent'
               )}
             >
-              <Icon className="size-6 shrink-0" />
+              <Icon className="size-6 shrink-0 md:size-12" />
               <span>
-                <span className="block font-medium">{label}</span>
-                <span className={cn('block text-xs', selected ? 'text-primary-foreground/70' : 'text-muted-foreground')}>{hint}</span>
+                <span className="block font-medium md:text-xl">{label}</span>
+                <span className={cn('block text-xs md:mt-1 md:text-sm', selected ? 'text-primary-foreground/70' : 'text-muted-foreground')}>{hint}</span>
               </span>
             </button>
           )
@@ -77,7 +77,7 @@ export default function NewRequestPage() {
       </div>
 
       {isStaff && (
-        <div className="space-y-4">
+        <div className="mx-auto w-full space-y-4 md:max-w-2xl">
           <div className="space-y-2">
             <Label htmlFor="teacher">Which teacher?</Label>
             <Select id="teacher" value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className="h-11">
@@ -98,7 +98,7 @@ export default function NewRequestPage() {
 
       {error && <Alert>{error}</Alert>}
 
-      <Button type="submit" size="lg" className="h-12 w-full" disabled={!canSubmit || submitting}>
+      <Button type="submit" size="lg" className="mx-auto flex h-14 w-full text-lg md:w-80" disabled={!canSubmit || submitting}>
         {submitting && <Loader2 className="animate-spin" />}
         {isStaff ? 'Send request' : 'Get my QR'}
       </Button>

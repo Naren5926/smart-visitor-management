@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Visit = require('../models/Visit');
+const SecurityEvent = require('../models/SecurityEvent');
 const HttpError = require('../utils/httpError');
 const { hashPassword } = require('../utils/password');
 const { toPublicUser } = require('../utils/publicUser');
@@ -141,6 +142,10 @@ const setUserStatus = async (req, res) => {
 
   const user = await User.findByIdAndUpdate(id, { status: req.body.status }, { new: true });
   if (!user) throw new HttpError(404, 'User not found');
+  // A fresh start: earlier black marks stay in the history but stop counting toward the limit.
+  if (req.body.status === STATUSES.ACTIVE) {
+    await SecurityEvent.updateMany({ student: user._id, type: 'black_mark', cleared: false }, { cleared: true });
+  }
   res.json({ user: toPublicUser(user) });
 };
 

@@ -1,3 +1,4 @@
+import { Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/auth/authContext'
 import { apiFetch } from '@/api'
@@ -43,7 +44,9 @@ export default function ManageUsersPage() {
     return (users ?? []).filter(
       (u) =>
         (roleFilter === 'all' || u.role === roleFilter) &&
-        (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+        (!q ||
+          [u.name, u.email, u.rollNo, u.className, u.year, roleLabel(u.role), u.status === 'active' ? 'active' : 'blocked']
+            .some((v) => v != null && String(v).toLowerCase().includes(q)))
     )
   }, [users, search, roleFilter])
 
@@ -87,14 +90,27 @@ export default function ManageUsersPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Input
-          placeholder="Search name or email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="sm:max-w-xs"
-          aria-label="Search users"
-        />
-        <Select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="sm:w-44" aria-label="Filter by role">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, email, roll number, class, year, role or status"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-14 pr-12 pl-12 text-base md:text-base"
+            aria-label="Search users"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+              className="absolute top-1/2 right-3 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <X className="size-5" />
+            </button>
+          )}
+        </div>
+        <Select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="h-14 text-base sm:w-52" aria-label="Filter by role">
           <option value="all">All roles</option>
           {ROLE_OPTIONS.map((r) => (
             <option key={r.id} value={r.backendRole}>

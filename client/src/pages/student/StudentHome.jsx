@@ -107,9 +107,9 @@ export default function StudentHome() {
   const past = visits.filter((v) => !isOpenVisit(v))
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 md:space-y-6">
       <div>
-        <h1 className="text-xl font-bold">Hi, {user.name.split(' ')[0]}</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Hi, {user.name.split(' ')[0]}</h1>
         <p className="text-sm text-muted-foreground">
           {user.className && `${user.className} · Year ${user.year} · Roll ${user.rollNo}`}
         </p>
@@ -121,7 +121,7 @@ export default function StudentHome() {
       {data && active && <ActiveVisit visit={active} serverTime={data.serverTime} onCancel={cancel} busy={busy} />}
 
       {data && !active && (
-        <Card className="items-center gap-3 py-8 text-center">
+        <Card className="items-center gap-3 py-8 text-center md:py-14">
           <p className="text-sm text-muted-foreground">No visit in progress.</p>
           <Button asChild size="lg" className="h-12">
             <Link to="/student/new">
@@ -134,6 +134,7 @@ export default function StudentHome() {
       {past.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-sm font-semibold text-muted-foreground">Recent visits</h2>
+          <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
           {past.map((v) => (
             <Card key={v.id} className="gap-1 px-4 py-3">
               <div className="flex items-center justify-between gap-2">
@@ -146,6 +147,7 @@ export default function StudentHome() {
               </p>
             </Card>
           ))}
+          </div>
         </section>
       )}
     </div>

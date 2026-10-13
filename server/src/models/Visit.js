@@ -28,6 +28,7 @@ const visitSchema = new mongoose.Schema(
     checkedInBy: { type: ObjectId, ref: 'User' },
     checkedOutBy: { type: ObjectId, ref: 'User' },
     manualCheckout: Boolean,
+    flagged: Boolean, // staff visit ended without the teacher's QR being scanned (black mark)
   },
   { timestamps: true }
 );
